@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Day 2 Close Read — The 14th Amendment vs. the Black Codes</title>
+<style>
+  :root {
+    --ink: #2a2a2a; --paper: #faf8f3; --accent: #6b5b3e; --gold: #b08d57;
+    --green: #cfead0; --green-strong: #4a8f52; --red: #f3d2ce; --red-strong: #b8493d; --panel: #f4f0e8;
+  }
+  * { box-sizing: border-box; }
+  body { font-family: Georgia, 'Times New Roman', serif; max-width: 900px; margin: 0 auto; padding: 20px; line-height: 1.6; color: var(--ink); background: #fff; }
+  h1 { font-family: Arial, sans-serif; font-size: 1.5rem; margin-bottom: 4px; }
+  h2 { font-family: Arial, sans-serif; font-size: 1.15rem; margin-top: 2.2em; border-bottom: 2px solid var(--gold); padding-bottom: 4px; }
+  h3 { font-family: Arial, sans-serif; font-size: 1rem; margin: 1em 0 4px 0; }
+  .subtitle { color: #555; font-family: Arial, sans-serif; font-size: 0.95rem; margin-bottom: 1.2em; }
+  .rubric-note { background: var(--panel); border-left: 4px solid var(--accent); padding: 12px 16px; font-family: Arial, sans-serif; font-size: 0.88rem; }
+  .id-bar { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; background: var(--panel); padding: 12px 16px; margin: 16px 0; border-radius: 4px; }
+  .id-bar input { padding: 6px 8px; font-size: 14px; font-family: Arial, sans-serif; }
+  button { font-family: Arial, sans-serif; padding: 8px 14px; font-size: 13.5px; cursor: pointer; border: 1px solid var(--accent); background: #fff; color: var(--accent); border-radius: 4px; margin: 4px 6px 4px 0; }
+  button:hover { background: var(--accent); color: #fff; }
+  button.primary { background: var(--accent); color: #fff; }
+  button:disabled { opacity: 0.4; cursor: not-allowed; }
+  .highlight-btn.green { border-color: var(--green-strong); color: var(--green-strong); }
+  .highlight-btn.green:hover { background: var(--green-strong); color: #fff; }
+  .highlight-btn.red { border-color: var(--red-strong); color: var(--red-strong); }
+  .highlight-btn.red:hover { background: var(--red-strong); color: #fff; }
+
+  .source-text { background: var(--paper); padding: 14px 18px; border-left: 4px solid var(--gold); margin: 10px 0; font-size: 1.02rem; }
+  .source-text mark { background: transparent; }
+  .doc-meta { font-family: Arial, sans-serif; font-size: 0.85rem; color: #555; margin-bottom: 6px; }
+  .clause-label { font-family: Arial, sans-serif; font-weight: bold; font-size: 0.85rem; color: var(--accent); text-transform: uppercase; letter-spacing: 0.03em; }
+
+  .guided-block { background: #fff; border: 1px solid #ddd; border-radius: 6px; padding: 14px 16px; margin: 8px 0 20px 0; }
+  .guided-question { font-family: Arial, sans-serif; font-size: 0.95rem; margin-bottom: 8px; }
+
+  .notes-box, textarea { width: 100%; min-height: 70px; font-family: inherit; font-size: 14.5px; padding: 10px; border: 1px solid #ccc; border-radius: 4px; }
+  textarea.big { min-height: 160px; }
+  textarea.small { min-height: 55px; }
+
+  .helper-panel { background: var(--panel); border-left: 4px solid var(--accent); padding: 12px 16px; margin-top: 8px; white-space: pre-wrap; font-family: Arial, sans-serif; font-size: 0.92rem; }
+  .locked { color: #999; font-style: italic; }
+
+  .timeline { display: flex; gap: 12px; flex-wrap: wrap; font-family: Arial, sans-serif; }
+  .timeline .event { flex: 1; min-width: 220px; background: var(--panel); padding: 10px 14px; border-radius: 4px; border-top: 3px solid var(--gold); }
+  .timeline .event .date { font-weight: bold; font-size: 0.85rem; color: var(--accent); }
+
+  .frames-panel { display: none; background: #fff8e6; border: 1px dashed var(--gold); padding: 12px 16px; margin-top: 8px; font-family: Arial, sans-serif; font-size: 0.9rem; }
+  .frames-panel.open { display: block; }
+  .frames-panel p { margin: 6px 0; }
+
+  .vocab-checklist { display: flex; gap: 8px; flex-wrap: wrap; font-family: Arial, sans-serif; font-size: 0.85rem; margin: 8px 0; }
+  .vocab-chip { padding: 4px 10px; border-radius: 12px; border: 1px solid #ccc; background: #eee; color: #777; cursor: pointer; }
+  .vocab-chip:hover { border-color: var(--accent); }
+  .vocab-chip.used { background: var(--green); border-color: var(--green-strong); color: #245c29; font-weight: bold; }
+  .vocab-definition { display: none; font-family: Arial, sans-serif; font-size: 0.85rem; background: var(--panel); padding: 8px 12px; border-radius: 4px; margin-top: 6px; }
+  .vocab-definition.show { display: block; }
+  .vocab-status { font-family: Arial, sans-serif; font-size: 0.85rem; margin-top: 4px; }
+
+  .try-first-note { font-family: Arial, sans-serif; font-size: 0.78rem; color: #888; margin: 4px 0; }
+  .paste-warning { color: #a33; font-size: 12.5px; margin-top: 4px; font-family: Arial, sans-serif; }
+  .save-indicator { font-family: Arial, sans-serif; font-size: 0.8rem; color: #888; margin-top: 4px; }
+
+  .completion-box { margin-top: 14px; padding: 14px 18px; border-radius: 4px; font-family: Arial, sans-serif; }
+  .completion-box.pass { background: #e4f4e6; border-left: 4px solid var(--green-strong); }
+  .completion-box.incomplete { background: #fdf1e4; border-left: 4px solid #c98a2c; }
+  .completion-box ul { margin: 6px 0 0 0; padding-left: 18px; font-size: 0.85rem; }
+
+  .mock-banner { background: #eef1fb; border-left: 4px solid #4a5fa8; padding: 10px 16px; font-family: Arial, sans-serif; font-size: 0.85rem; margin: 16px 0 10px 0; }
+  .mock-cards { display: flex; gap: 14px; flex-wrap: wrap; }
+  .mock-card { flex: 1; min-width: 260px; background: #fff; border: 1px solid #ddd; border-radius: 6px; padding: 14px 16px; font-family: Arial, sans-serif; }
+  .mock-card h4 { margin: 0 0 4px 0; font-size: 0.95rem; }
+  .mock-card .range { font-weight: bold; color: #4a5fa8; margin-bottom: 6px; }
+  .mock-card .improve { margin-top: 8px; padding-top: 8px; border-top: 1px dashed #ccc; font-size: 0.85rem; }
+
+  @media print {
+    button, .id-bar { display: none !important; }
+    body.printing > *:not(#print-summary) { display: none !important; }
+    #print-summary { display: block !important; }
+  }
+  #print-summary { display: none; font-family: Georgia, serif; }
+  #print-summary h2 { border-bottom: 1px solid #999; margin-top: 1.4em; }
+  #print-summary .p-block { white-space: pre-wrap; margin: 6px 0 14px 0; }
+  #print-summary .p-doc { background: var(--paper); padding: 10px 14px; border-left: 3px solid var(--gold); margin: 8px 0; }
+  #print-summary .p-label { font-family: Arial, sans-serif; font-weight: bold; font-size: 0.85rem; color: var(--accent); margin-top: 10px; }
+</style>
+</head>
+<body>
+
+<h1>Day 2 Close Read: The 14th Amendment vs. the Black Codes</h1>
+<div class="subtitle">Unit 1: Reconstruction &amp; the Rise of Jim Crow — SQ1 Engage</div>
+
+<div class="rubric-note">
+  <strong>What this feeds into:</strong> Today's work is a <strong>completion grade</strong> — did you do the
+  thinking, not a number score. It's practice for two criteria on the APS Writing Rubric you'll be scored on
+  later this unit: <strong>Use of Evidence</strong> and <strong>Analysis and Reasoning</strong>. At the end
+  you'll get a labeled <em>practice preview</em> of how your work would score on those two criteria — that's
+  feedback to help you improve, not your grade for today.
+</div>
+
+<div class="id-bar">
+  <label for="student-id">Your Student ID:</label>
+  <input id="student-id" type="text" placeholder="e.g. jsmith">
+  <button onclick="loadState()">Load my saved work</button>
+  <span id="load-status" class="save-indicator"></span>
+</div>
+
+<!-- ============ OPENING WRITE ============ -->
+<h2>Before we start: What is owed, and to whom?</h2>
+<p style="font-family:Arial, sans-serif; font-size:0.9rem; color:#555;">
+  <strong>Scenario:</strong> Imagine your family wants to move to a new town for a better job — the job is
+  already lined up. But a new rule says anyone moving into that town first has to pay a $350,000 deposit and
+  get two people to vouch for them, or they're not allowed to live and work there. Based on that scenario:
+  what do you think is owed, and to whom? No history needed yet — just your own reasoning, 3–5 sentences.
+  (Note: unlike the paper version of this write, this digital copy is saved under your name, not read aloud.)
+</p>
+<textarea id="opening-write" placeholder="Type your initial thoughts here..."></textarea>
+<div class="save-indicator" id="opening-save-status"></div>
+
+<!-- ============ DOCUMENT 1: 14th AMENDMENT ============ -->
+<h2>Document 1: The 14th Amendment, Section 1 (1868)</h2>
+<div class="doc-meta">Ratified July 9, 1868 — U.S. Constitution. This one sentence has three separate promises packed into it — read each piece on its own below.</div>
+<p style="font-family:Arial, sans-serif; font-size:0.88rem;">Select any text, then click a color: <strong>green</strong> for a promise/right, <strong>red</strong> for a limit or vagueness that could be exploited.</p>
+<button class="highlight-btn green" onclick="applyHighlight('green')">Highlight: Promise/Right</button>
+<button class="highlight-btn red" onclick="applyHighlight('red')">Highlight: Limit/Vagueness</button>
+<button onclick="applyHighlight(null)">Clear highlight</button>
+
+<div class="clause-label">Part 1 — The Citizenship Clause</div>
+<div class="source-text" id="chunk-c1" contenteditable="true" spellcheck="false">All persons born or naturalized in the United States, and subject to the jurisdiction thereof, are citizens of the United States and of the State wherein they reside.</div>
+<div class="guided-block">
+  <div class="guided-question"><strong>Guiding question:</strong> In your own words, who does this sentence say counts as a U.S. citizen? Why might this sentence have mattered to someone who had been enslaved just a few years earlier?</div>
+  <textarea class="small" id="answer-c1" placeholder="Your answer..."></textarea>
+  <div class="try-first-note">Write your own answer first — the check button unlocks after a few sentences.</div>
+  <button id="checkbtn-c1" onclick="checkGuided('c1','Citizenship Clause','chunk-c1','Who counts as a citizen, and why does this matter for someone recently enslaved?')">Check my understanding</button>
+  <div class="helper-panel" id="feedback-c1" style="display:none;"></div>
+</div>
+
+<div class="clause-label">Part 2 — The Due Process Clause</div>
+<div class="source-text" id="chunk-c2" contenteditable="true" spellcheck="false">No State shall make or enforce any law which shall abridge the privileges or immunities of citizens of the United States; nor shall any State deprive any person of life, liberty, or property, without due process of law;</div>
+<div class="guided-block">
+  <div class="guided-question"><strong>Guiding question:</strong> What is this sentence telling STATES they cannot do? Based on the words around it, what do you think "due process of law" means?</div>
+  <textarea class="small" id="answer-c2" placeholder="Your answer..."></textarea>
+  <div class="try-first-note">Write your own answer first — the check button unlocks after a few sentences.</div>
+  <button id="checkbtn-c2" onclick="checkGuided('c2','Due Process Clause','chunk-c2','What are states forbidden from doing, and what does due process of law mean?')">Check my understanding</button>
+  <div class="helper-panel" id="feedback-c2" style="display:none;"></div>
+</div>
+
+<div class="clause-label">Part 3 — The Equal Protection Clause</div>
+<div class="source-text" id="chunk-c3" contenteditable="true" spellcheck="false">nor deny to any person within its jurisdiction the equal protection of the laws.</div>
+<div class="guided-block">
+  <div class="guided-question"><strong>Guiding question:</strong> What does "equal protection of the laws" promise to every person? Who would have needed this promise the most in 1868?</div>
+  <textarea class="small" id="answer-c3" placeholder="Your answer..."></textarea>
+  <div class="try-first-note">Write your own answer first — the check button unlocks after a few sentences.</div>
+  <button id="checkbtn-c3" onclick="checkGuided('c3','Equal Protection Clause','chunk-c3','What does equal protection promise, and who needed it most in 1868?')">Check my understanding</button>
+  <div class="helper-panel" id="feedback-c3" style="display:none;"></div>
+</div>
+
+<div>
+  <label for="question-14th" style="font-family:Arial, sans-serif; font-size:0.88rem;">Still stuck on something else in this document? Ask here:</label>
+  <input type="text" id="question-14th" style="width:100%; padding:8px; margin:6px 0; font-family:inherit;" placeholder="e.g. what does 'abridge' mean?">
+  <button id="ask-14th-btn" onclick="askHelp('14th')">Ask for open-ended help</button>
+</div>
+<div class="helper-panel" id="helper-14th" style="display:none;"></div>
+
+<h3>Other notes on this document (optional, just for you)</h3>
+<textarea class="notes-box" id="other-notes-14th" placeholder="Anything else you want to jot down..."></textarea>
+
+<!-- ============ TIMELINE STRIP ============ -->
+<h2>Quick context: the other two Reconstruction Amendments</h2>
+<div class="timeline">
+  <div class="event">
+    <div class="date">13th Amendment — ratified Dec. 6, 1865</div>
+    Abolished slavery and involuntary servitude, "except as a punishment for crime whereof the party shall have been duly convicted."
+  </div>
+  <div class="event">
+    <div class="date">15th Amendment — ratified Feb. 3, 1870</div>
+    Declared the right to vote could not be denied "on account of race, color, or previous condition of servitude."
+  </div>
+</div>
+
+<!-- ============ DOCUMENT 2: BLACK CODES ============ -->
+<h2>Document 2: The Black Codes (Mississippi &amp; South Carolina, 1865)</h2>
+<p style="font-family:Arial, sans-serif; font-size:0.88rem;">Eight provisions from two of the first states to pass Black Codes after the war. Highlight the same way as above.</p>
+<button class="highlight-btn green" onclick="applyHighlight('green')">Highlight: Promise/Right</button>
+<button class="highlight-btn red" onclick="applyHighlight('red')">Highlight: Limit/Restriction</button>
+<button onclick="applyHighlight(null)">Clear highlight</button>
+
+<div class="source-text" id="doc-blackcodes" contenteditable="true" spellcheck="false">
+<p><strong>1. Mississippi, "Civil Rights of Freedmen" Act — November 1865.</strong> The law declared that freedpeople now had the legal right to marry, to own property, and to sue and be sued in court — rights they had been denied under slavery.</p>
+<p><strong>2. Mississippi, Vagrancy Law — November 1865.</strong> "All freedmen, free negroes and mulattoes... over the age of eighteen years, found... with no lawful employment or business... shall be deemed vagrants; and, on conviction thereof, shall be fined... and imprisoned at the discretion of the court."</p>
+<p><strong>3. Mississippi, Firearms Restriction — November 1865.</strong> "No freedman, free negro or mulatto, not in the military service of the United States government... shall keep or carry fire-arms of any kind, or any ammunition, dirk or bowie knife."</p>
+<p><strong>4. Mississippi, Intermarriage Ban — November 1865.</strong> "It shall not be lawful for any freedman, free negro or mulatto to intermarry with any white person... any person who shall so intermarry shall be deemed guilty of felony, and on conviction thereof, shall be confined in the State Penitentiary for life."</p>
+<p><strong>5. Mississippi, Freedman's Pauper Fund (poll tax) — November 1865.</strong> County police could levy an annual tax of up to one dollar on freedmen ages 18–60. Failure to pay counted as "prima facie evidence of vagrancy" — grounds for arrest and being hired out to pay off the debt.</p>
+<p><strong>6. South Carolina, Master and Servant Law — December 1865.</strong> "All persons of color who make contracts for service or labor, shall be known as servants, and those with whom they contract, shall be known as masters."</p>
+<p><strong>7. South Carolina, Occupation Restriction — December 1865.</strong> "No person of color shall pursue or practice the art, trade, or business of an artisan, mechanic, or shop-keeper, or any other trade... besides that of husbandry, or that of a servant under a contract for service or labor" without paying an annual license fee.</p>
+<p><strong>8. South Carolina, Migration/Bond Law — December 1865.</strong> "No person of color shall migrate into and reside in this State, unless... he shall enter into a bond, with two freeholders as sureties... in a penalty of one thousand dollars, conditioned for his good behavior." (That $1,000 bond, measured against average wages of the time, is roughly equivalent to $350,000 today.)</p>
+</div>
+
+<div class="guided-block">
+  <div class="guided-question"><strong>Guided task, Provision A:</strong> Pick one provision above (write its number). Is it a promise/right or a restriction? What effect would it have on a freedperson's daily life?</div>
+  <textarea class="small" id="answer-bc1" placeholder="Provision #___: your answer..."></textarea>
+  <div class="try-first-note">Write your own answer first — the check button unlocks after a few sentences.</div>
+  <button id="checkbtn-bc1" onclick="checkGuided('bc1','Black Codes — Provision A','doc-blackcodes','Which provision, is it a promise or a restriction, and what daily-life effect would it have?')">Check my understanding</button>
+  <div class="helper-panel" id="feedback-bc1" style="display:none;"></div>
+</div>
+<div class="guided-block">
+  <div class="guided-question"><strong>Guided task, Provision B:</strong> Now pick a <em>different</em> provision. Same two questions.</div>
+  <textarea class="small" id="answer-bc2" placeholder="Provision #___: your answer..."></textarea>
+  <div class="try-first-note">Write your own answer first — the check button unlocks after a few sentences.</div>
+  <button id="checkbtn-bc2" onclick="checkGuided('bc2','Black Codes — Provision B','doc-blackcodes','Which different provision, is it a promise or a restriction, and what daily-life effect would it have?')">Check my understanding</button>
+  <div class="helper-panel" id="feedback-bc2" style="display:none;"></div>
+</div>
+
+<div class="clause-label">Synthesis — Who Holds the Power?</div>
+<div class="guided-block">
+  <div class="guided-question"><strong>Guiding question:</strong> Looking at both documents together — the 14th Amendment and the Black Codes — who had the power to write these rules, and who had to live under them? What does that tell you about who really controlled "freedom" in 1865–68?</div>
+  <textarea class="small" id="answer-power" placeholder="Your answer..."></textarea>
+  <div class="try-first-note">Write your own answer first — the check button unlocks after a few sentences.</div>
+  <button id="checkbtn-power" onclick="checkGuided('power','Power Throughline','COMBINED','Who had the power to write these rules, and who had to live under them?')">Check my understanding</button>
+  <div class="helper-panel" id="feedback-power" style="display:none;"></div>
+</div>
+
+<div>
+  <label for="question-bc" style="font-family:Arial, sans-serif; font-size:0.88rem;">Still stuck on something else in this document? Ask here:</label>
+  <input type="text" id="question-bc" style="width:100%; padding:8px; margin:6px 0; font-family:inherit;" placeholder="e.g. what does 'prima facie evidence' mean?">
+  <button id="ask-bc-btn" onclick="askHelp('bc')">Ask for open-ended help</button>
+</div>
+<div class="helper-panel" id="helper-bc" style="display:none;"></div>
+
+<h3>Other notes on this document (optional, just for you)</h3>
+<textarea class="notes-box" id="other-notes-blackcodes" placeholder="Anything else you want to jot down..."></textarea>
+
+<!-- ============ MAIN WRITING RESPONSE ============ -->
+<h2>Your Analysis</h2>
+<p style="font-family:Arial, sans-serif; font-size:0.9rem; color:#555;">
+  Using both documents: what specific promise of freedom does the 14th Amendment appear to make, and what
+  specific reality in the Black Codes reveals a limit on that promise? Cite the text directly.
+</p>
+
+<h3>Vocabulary — click a word for its definition. Use at least half of these in your writing below.</h3>
+<div class="vocab-checklist" id="vocab-checklist"></div>
+<div class="vocab-definition" id="vocab-definition"></div>
+<div class="vocab-status" id="vocab-status"></div>
+
+<button onclick="toggleFrames()">Sentence Frames</button>
+<div class="frames-panel" id="frames-panel">
+  <p><strong>Framing a promise/reality pair:</strong> "The 14th Amendment tried to give [group] the right to ______. However, the Black Codes limited this by ______."</p>
+  <p><strong>Naming a promise:</strong> "One promise of freedom was ______, shown by the text: '______.'"</p>
+  <p><strong>Naming a reality:</strong> "One reality that limited this promise was ______, shown by the text: '______.'"</p>
+  <p><strong>Connecting to the anchor question:</strong> "This connects to the question of what is owed because ______."</p>
+</div>
+
+<textarea class="big" id="main-response" placeholder="Type your response here — pasting is disabled for this assignment."></textarea>
+<div class="paste-warning" id="paste-warning" style="display:none;">Pasting is disabled for this assignment — type your own response.</div>
+<div class="try-first-note">Write your own analysis first — the check button unlocks once you've written a few sentences.</div>
+<button id="checkbtn-analysis" onclick="checkAnalysis()">Check my reasoning so far (coaching, not a grade)</button>
+<div class="helper-panel" id="feedback-analysis" style="display:none;"></div>
+
+<!-- ============ CLOSING WRITE ============ -->
+<h2>Now that you've read: What is owed, and to whom?</h2>
+<p style="font-family:Arial, sans-serif; font-size:0.9rem; color:#555;">
+  Revisit the same question — but now think specifically about formerly enslaved people in 1865. Based on
+  today's documents, what do you think is owed to them, and by whom? Has your answer changed from your first response?
+</p>
+<textarea id="closing-write" placeholder="Type your follow-up thoughts here..."></textarea>
+
+<!-- ============ SUBMIT ============ -->
+<div style="margin-top:20px;">
+  <button class="primary" onclick="submitWork()">Submit for feedback</button>
+  <button onclick="downloadWork()">Download my work (PDF-style print)</button>
+</div>
+<p style="font-family:Arial, sans-serif; font-size:0.85rem; color:#555; max-width:600px;">
+  <strong>Before you're done today:</strong> Click <strong>Submit for feedback</strong> first so your feedback
+  is included. Then click <strong>Download my work</strong> and save it as a PDF (choose "Save as PDF" as the
+  printer). Upload that PDF to today's assignment in Google Classroom — this is your backup copy and the
+  easiest way for your teacher to see your work.
+</p>
+<div id="completion-area"></div>
+
+<div id="print-summary"></div>
+
+<script>
+// ============ CONFIG — must match Code.gs ============
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxFoqvHfpwc9tKqGyhjejOrfxo9coyzZS9Z0CutZm-Vgq3j_moplZLInTdaTAwAgcnF/exec';
+const SHARED_SECRET = 'MIglDVynL0pCrDYGzvTMYCkyXl0gYro9';
+// =======================================================
+
+const VOCAB_LIST = [
+  { term: 'amendment', label: 'Amendment', definition: 'A formal change to the Constitution.' },
+  { term: 'jurisdiction', label: 'Jurisdiction', definition: 'The official power to make legal decisions.' },
+  { term: 'vagrancy law', label: 'Vagrancy Laws', definition: 'Laws used to arrest people without jobs (Black Codes).' },
+  { term: 'enforcement', label: 'Enforcement', definition: 'Making sure people follow the law.' },
+  { term: 'contrast', label: 'Contrast', definition: 'To find differences.' },
+  { term: 'evaluate', label: 'Evaluate', definition: 'To judge how well something worked.' }
+];
+const VOCAB_REQUIRED = Math.ceil(VOCAB_LIST.length * 0.5); // 3 of 6
+const GUIDED_KEYS = ['c1', 'c2', 'c3', 'bc1', 'bc2', 'power'];
+
+let struggleLevels = { '14th': 0, 'bc': 0 };
+let guidedAttempts = {};
+
+// ---------- Vocabulary checklist ----------
+function renderVocabChecklist(usedTerms) {
+  const container = document.getElementById('vocab-checklist');
+  container.innerHTML = '';
+  VOCAB_LIST.forEach(v => {
+    const chip = document.createElement('span');
+    chip.className = 'vocab-chip' + (usedTerms.includes(v.term) ? ' used' : '');
+    chip.textContent = v.label;
+    chip.setAttribute('role', 'button');
+    chip.setAttribute('tabindex', '0');
+    chip.onclick = () => showDefinition(v.term);
+    chip.onkeypress = (e) => { if (e.key === 'Enter' || e.key === ' ') showDefinition(v.term); };
+    container.appendChild(chip);
+  });
+  document.getElementById('vocab-status').textContent =
+    usedTerms.length + ' of ' + VOCAB_REQUIRED + ' required vocabulary words used.';
+}
+
+function showDefinition(term) {
+  const box = document.getElementById('vocab-definition');
+  const entry = VOCAB_LIST.find(v => v.term === term);
+  if (!entry) return;
+  if (box.classList.contains('show') && box.dataset.term === term) {
+    box.classList.remove('show');
+    box.dataset.term = '';
+    return;
+  }
+  box.innerHTML = '<strong>' + entry.label + ':</strong> ' + entry.definition;
+  box.dataset.term = term;
+  box.classList.add('show');
+}
+
+function getUsedVocab() {
+  const text = document.getElementById('main-response').value.toLowerCase();
+  return VOCAB_LIST.filter(v => text.includes(v.term)).map(v => v.term);
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  renderVocabChecklist([]);
+  document.getElementById('main-response').addEventListener('input', () => {
+    renderVocabChecklist(getUsedVocab());
+  });
+});
+
+// ---------- "Try first" enforcement — check/ask buttons unlock after a genuine attempt ----------
+function wireTryFirst(inputId, buttonId, minChars) {
+  const input = document.getElementById(inputId);
+  const btn = document.getElementById(buttonId);
+  if (!input || !btn) return;
+  const update = () => { btn.disabled = input.value.trim().length < minChars; };
+  update();
+  input.addEventListener('input', update);
+}
+document.addEventListener('DOMContentLoaded', () => {
+  wireTryFirst('answer-c1', 'checkbtn-c1', 15);
+  wireTryFirst('answer-c2', 'checkbtn-c2', 15);
+  wireTryFirst('answer-c3', 'checkbtn-c3', 15);
+  wireTryFirst('answer-bc1', 'checkbtn-bc1', 15);
+  wireTryFirst('answer-bc2', 'checkbtn-bc2', 15);
+  wireTryFirst('answer-power', 'checkbtn-power', 20);
+  wireTryFirst('main-response', 'checkbtn-analysis', 40);
+  wireTryFirst('question-14th', 'ask-14th-btn', 8);
+  wireTryFirst('question-bc', 'ask-bc-btn', 8);
+});
+
+// ---------- Paste blocking on all free-write boxes ----------
+['main-response', 'opening-write', 'closing-write', 'other-notes-14th', 'other-notes-blackcodes',
+ 'answer-c1', 'answer-c2', 'answer-c3', 'answer-bc1', 'answer-bc2', 'answer-power'].forEach(id => {
+  document.addEventListener('DOMContentLoaded', () => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.addEventListener('paste', function (e) {
+      e.preventDefault();
+      const warn = document.getElementById('paste-warning');
+      if (warn) { warn.style.display = 'block'; setTimeout(() => { warn.style.display = 'none'; }, 2500); }
+    });
+    el.addEventListener('contextmenu', e => e.preventDefault());
+  });
+});
+
+// ---------- Highlighting (contenteditable, typing blocked, formatting allowed) ----------
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('.source-text[contenteditable="true"]').forEach(el => {
+    el.addEventListener('beforeinput', function (e) {
+      if (e.inputType && (e.inputType.startsWith('insert') || e.inputType.startsWith('delete'))) {
+        e.preventDefault();
+      }
+    });
+    el.addEventListener('paste', e => e.preventDefault());
+  });
+});
+
+function applyHighlight(color) {
+  const sel = window.getSelection();
+  if (!sel || sel.rangeCount === 0 || sel.toString().trim() === '') {
+    alert('Select some text in one of the documents first.');
+    return;
+  }
+  const anchorNode = sel.anchorNode;
+  const container = anchorNode && anchorNode.nodeType === 3 ? anchorNode.parentElement : anchorNode;
+  const validParent = container && container.closest('.source-text[contenteditable="true"]');
+  if (!validParent) { alert('Select text inside one of the documents above.'); return; }
+
+  if (color === null) { document.execCommand('hiliteColor', false, 'transparent'); return; }
+  const cssColor = color === 'green' ? '#cfead0' : '#f3d2ce';
+  document.execCommand('hiliteColor', false, cssColor);
+}
+
+function countHighlights() {
+  let total = 0;
+  document.querySelectorAll('.source-text[contenteditable="true"]').forEach(el => {
+    total += (el.innerHTML.match(/background-color/g) || []).length;
+  });
+  return total;
+}
+
+function collectHighlights() {
+  const map = {};
+  document.querySelectorAll('.source-text[contenteditable="true"]').forEach(el => { map[el.id] = el.innerHTML; });
+  return map;
+}
+
+function restoreHighlights(map) {
+  if (!map) return;
+  Object.keys(map).forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.innerHTML = map[id];
+  });
+}
+
+// ---------- Sentence frames toggle ----------
+function toggleFrames() { document.getElementById('frames-panel').classList.toggle('open'); }
+
+// ---------- Backend calls ----------
+async function callBackend(action, extra) {
+  const studentId = document.getElementById('student-id').value.trim();
+  if (!studentId) { alert('Enter your Student ID first.'); return null; }
+  const body = Object.assign({ secret: SHARED_SECRET, action: action, studentId: studentId }, extra || {});
+  try {
+    const res = await fetch(APPS_SCRIPT_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify(body)
+    });
+    return await res.json();
+  } catch (err) {
+    alert('Could not reach the server. Check your internet connection and try again.');
+    return null;
+  }
+}
+
+async function askHelp(which) {
+  const isFirst = which === '14th';
+  const docId = isFirst ? 'chunk-c1' : 'doc-blackcodes'; // representative passage
+  const label = isFirst ? "The 14th Amendment, Section 1" : "The Black Codes (1865)";
+  const questionInput = document.getElementById(isFirst ? 'question-14th' : 'question-bc');
+  const question = questionInput.value.trim();
+  if (!question) { alert('Type your question first.'); return; }
+
+  struggleLevels[which]++;
+  const panel = document.getElementById(isFirst ? 'helper-14th' : 'helper-bc');
+  panel.style.display = 'block';
+  panel.innerHTML = '<span class="locked">Thinking...</span>';
+
+  const fullText = isFirst
+    ? (document.getElementById('chunk-c1').innerText + ' ' + document.getElementById('chunk-c2').innerText + ' ' + document.getElementById('chunk-c3').innerText)
+    : document.getElementById('doc-blackcodes').innerText;
+
+  const data = await callBackend('decode_help', {
+    documentLabel: label,
+    passageText: fullText.slice(0, 1800),
+    studentQuestion: question,
+    struggleLevel: struggleLevels[which]
+  });
+  if (!data) { panel.style.display = 'none'; return; }
+  panel.innerHTML = data.reply || data.error || 'No response.';
+}
+
+async function checkGuided(key, partLabel, passageElId, questionText) {
+  const answerEl = document.getElementById('answer-' + key);
+  const panel = document.getElementById('feedback-' + key);
+  const answer = answerEl.value.trim();
+  if (!answer) { alert('Write your answer first.'); return; }
+
+  guidedAttempts[key] = (guidedAttempts[key] || 0) + 1;
+  panel.style.display = 'block';
+  panel.innerHTML = '<span class="locked">Thinking...</span>';
+
+  let passageText;
+  if (passageElId === 'COMBINED') {
+    passageText = (
+      document.getElementById('chunk-c1').innerText + ' ' +
+      document.getElementById('chunk-c2').innerText + ' ' +
+      document.getElementById('chunk-c3').innerText + ' ' +
+      document.getElementById('doc-blackcodes').innerText
+    ).slice(0, 1800);
+  } else {
+    passageText = document.getElementById(passageElId).innerText.slice(0, 1500);
+  }
+
+  const data = await callBackend('guided_check', {
+    partLabel: partLabel, passageText: passageText, questionText: questionText,
+    studentAnswer: answer, attemptNumber: guidedAttempts[key]
+  });
+  if (!data) { panel.style.display = 'none'; return; }
+  panel.innerHTML = data.reply || data.error || 'No response.';
+}
+
+async function checkAnalysis() {
+  const answer = document.getElementById('main-response').value.trim();
+  const panel = document.getElementById('feedback-analysis');
+  if (!answer) { alert('Write something in your Analysis box first.'); return; }
+
+  guidedAttempts['analysis'] = (guidedAttempts['analysis'] || 0) + 1;
+  panel.style.display = 'block';
+  panel.innerHTML = '<span class="locked">Thinking...</span>';
+
+  const data = await callBackend('guided_check', {
+    partLabel: 'Overall Analysis (draft in progress)',
+    passageText: "N/A — this is feedback on the student's own developing argument, not a source excerpt.",
+    questionText: 'Does this response clearly name a specific promise AND a specific reality, each backed by a direct quote?',
+    studentAnswer: answer,
+    attemptNumber: guidedAttempts['analysis']
+  });
+  if (!data) { panel.style.display = 'none'; return; }
+  panel.innerHTML = data.reply || data.error || 'No response.';
+}
+
+function getGuidedAnswers() {
+  const answers = {};
+  GUIDED_KEYS.forEach(k => {
+    const el = document.getElementById('answer-' + k);
+    if (el) answers[k] = el.value;
+  });
+  return answers;
+}
+
+function countGuidedAnswers() {
+  return GUIDED_KEYS.filter(k => {
+    const el = document.getElementById('answer-' + k);
+    return el && el.value.trim().length > 5;
+  }).length;
+}
+
+let saveTimer = null;
+function scheduleAutoSave() { clearTimeout(saveTimer); saveTimer = setTimeout(saveState, 4000); }
+['opening-write', 'closing-write', 'other-notes-14th', 'other-notes-blackcodes', 'main-response',
+ 'answer-c1', 'answer-c2', 'answer-c3', 'answer-bc1', 'answer-bc2', 'answer-power'].forEach(id => {
+  document.addEventListener('DOMContentLoaded', () => {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener('input', scheduleAutoSave);
+  });
+});
+
+async function saveState() {
+  const status = document.getElementById('opening-save-status');
+  const data = await callBackend('save_state', collectState());
+  if (data && data.saved) status.textContent = 'Saved ' + new Date().toLocaleTimeString();
+}
+
+function collectState() {
+  return {
+    openingWrite: document.getElementById('opening-write').value,
+    closingWrite: document.getElementById('closing-write').value,
+    mainResponse: document.getElementById('main-response').value,
+    highlights: collectHighlights(),
+    highlightCount: countHighlights(),
+    guidedAnswers: getGuidedAnswers(),
+    guidedAnswersCount: countGuidedAnswers(),
+    guidedAnswersTotal: GUIDED_KEYS.length,
+    otherNotes: {
+      c14th: document.getElementById('other-notes-14th').value,
+      blackcodes: document.getElementById('other-notes-blackcodes').value
+    },
+    vocabUsed: getUsedVocab(),
+    vocabList: VOCAB_LIST.map(v => v.term)
+  };
+}
+
+async function loadState() {
+  const status = document.getElementById('load-status');
+  status.textContent = 'Loading...';
+  const data = await callBackend('load_state', {});
+  if (!data || !data.found) { status.textContent = 'No saved work found yet — start typing below.'; return; }
+
+  document.getElementById('opening-write').value = data.openingWrite || '';
+  document.getElementById('closing-write').value = data.closingWrite || '';
+  document.getElementById('main-response').value = data.mainResponse || '';
+  restoreHighlights(data.highlights);
+
+  const ga = data.guidedAnswers || {};
+  GUIDED_KEYS.forEach(k => { const el = document.getElementById('answer-' + k); if (el && ga[k]) el.value = ga[k]; });
+
+  const notes = data.otherNotes || {};
+  document.getElementById('other-notes-14th').value = notes.c14th || '';
+  document.getElementById('other-notes-blackcodes').value = notes.blackcodes || '';
+
+  renderVocabChecklist(getUsedVocab());
+  status.textContent = 'Work loaded.';
+}
+
+async function submitWork() {
+  const state = collectState();
+  const submitBtn = document.querySelector('button.primary');
+  submitBtn.disabled = true;
+  submitBtn.textContent = 'Getting feedback...';
+
+  const data = await callBackend('reflect_check', state);
+
+  submitBtn.disabled = false;
+  submitBtn.textContent = 'Submit for feedback';
+
+  const area = document.getElementById('completion-area');
+  if (!data) { area.innerHTML = ''; return; }
+  if (data.error) { area.innerHTML = '<div class="completion-box incomplete">' + data.error + '</div>'; return; }
+
+  const cls = data.complete ? 'pass' : 'incomplete';
+  const heading = data.complete ? 'Complete — nice work today.' : 'Not quite complete yet';
+  let checklistHtml = '';
+  if (!data.complete && data.checklist) {
+    checklistHtml = '<ul>';
+    if (!data.checklist.hasOpeningWrite) checklistHtml += '<li>Add your opening "What is owed?" write.</li>';
+    if (!data.checklist.hasClosingWrite) checklistHtml += '<li>Add your closing "What is owed?" write.</li>';
+    if (!data.checklist.hasMainResponse) checklistHtml += '<li>Your analysis needs more detail.</li>';
+    if (!data.checklist.hasHighlights) checklistHtml += '<li>Highlight at least one phrase in each document.</li>';
+    if (!data.checklist.vocabMet) checklistHtml += '<li>Use at least ' + data.checklist.vocabRequired + ' vocabulary words (currently ' + data.checklist.vocabCount + ').</li>';
+    if (!data.checklist.hasGuidedAnswers) checklistHtml += '<li>Answer at least ' + (data.checklist.guidedTotal - 1) + ' of the ' + data.checklist.guidedTotal + ' guided questions.</li>';
+    checklistHtml += '</ul>';
+  }
+
+  let mockHtml = '';
+  if (data.mockRubric) {
+    const ev = data.mockRubric.evidence, rs = data.mockRubric.reasoning;
+    mockHtml = '<div class="mock-banner"><strong>Practice score preview</strong> — this is NOT your grade for today. ' +
+      'Your official grade today is completion (above). This preview shows how this response would land on two ' +
+      'rubric criteria, so you can see where to grow before the graded CER later in the unit.</div>' +
+      '<div class="mock-cards">' +
+        '<div class="mock-card"><h4>Use of Evidence</h4><div class="range">' + (ev ? ev.range : 'N/A') + '</div><div>' + (ev ? ev.feedback : '') + '</div>' +
+          '<div class="improve"><strong>Next step:</strong> ' + (ev ? ev.improve : '') + '</div></div>' +
+        '<div class="mock-card"><h4>Analysis and Reasoning</h4><div class="range">' + (rs ? rs.range : 'N/A') + '</div><div>' + (rs ? rs.feedback : '') + '</div>' +
+          '<div class="improve"><strong>Next step:</strong> ' + (rs ? rs.improve : '') + '</div></div>' +
+      '</div>';
+  }
+
+  area.innerHTML = '<div class="completion-box ' + cls + '"><strong>' + heading + '</strong>' + checklistHtml + '</div>' + mockHtml;
+}
+
+function downloadWork() {
+  const val = id => { const el = document.getElementById(id); return el ? el.value : ''; };
+  const esc = s => (s || '').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  const studentId = document.getElementById('student-id').value.trim() || '(no ID entered)';
+  const now = new Date().toLocaleString();
+
+  const html = `
+    <h1>Day 2 Close Read — ${esc(studentId)}</h1>
+    <div class="p-label">Printed: ${now}</div>
+
+    <h2>Opening write: What is owed, and to whom?</h2>
+    <div class="p-block">${esc(val('opening-write')) || '(not yet written)'}</div>
+
+    <h2>Document 1: The 14th Amendment (with your highlights)</h2>
+    <div class="p-doc">${document.getElementById('chunk-c1').innerHTML}</div>
+    <div class="p-label">Citizenship Clause — your answer</div>
+    <div class="p-block">${esc(val('answer-c1')) || '(not yet answered)'}</div>
+    <div class="p-doc">${document.getElementById('chunk-c2').innerHTML}</div>
+    <div class="p-label">Due Process Clause — your answer</div>
+    <div class="p-block">${esc(val('answer-c2')) || '(not yet answered)'}</div>
+    <div class="p-doc">${document.getElementById('chunk-c3').innerHTML}</div>
+    <div class="p-label">Equal Protection Clause — your answer</div>
+    <div class="p-block">${esc(val('answer-c3')) || '(not yet answered)'}</div>
+    <div class="p-label">Other notes on this document</div>
+    <div class="p-block">${esc(val('other-notes-14th')) || '(none)'}</div>
+
+    <h2>Document 2: The Black Codes (with your highlights)</h2>
+    <div class="p-doc">${document.getElementById('doc-blackcodes').innerHTML}</div>
+    <div class="p-label">Provision A — your answer</div>
+    <div class="p-block">${esc(val('answer-bc1')) || '(not yet answered)'}</div>
+    <div class="p-label">Provision B — your answer</div>
+    <div class="p-block">${esc(val('answer-bc2')) || '(not yet answered)'}</div>
+    <div class="p-label">Other notes on this document</div>
+    <div class="p-block">${esc(val('other-notes-blackcodes')) || '(none)'}</div>
+
+    <h2>Synthesis: Who Holds the Power?</h2>
+    <div class="p-block">${esc(val('answer-power')) || '(not yet answered)'}</div>
+
+    <h2>Your Analysis</h2>
+    <div class="p-label">Vocabulary used: ${(getUsedVocab().map(t => VOCAB_LIST.find(v => v.term === t).label).join(', ')) || 'none yet'}</div>
+    <div class="p-block">${esc(val('main-response')) || '(not yet written)'}</div>
+
+    <h2>Closing write: What is owed, and to whom?</h2>
+    <div class="p-block">${esc(val('closing-write')) || '(not yet written)'}</div>
+
+    <h2>Feedback received</h2>
+    <div class="p-block">${document.getElementById('completion-area').innerHTML || '(not yet submitted for feedback)'}</div>
+  `;
+
+  document.getElementById('print-summary').innerHTML = html;
+  document.body.classList.add('printing');
+  window.print();
+}
+
+window.addEventListener('afterprint', () => {
+  document.body.classList.remove('printing');
+});
+</script>
+
+</body>
+</html>
