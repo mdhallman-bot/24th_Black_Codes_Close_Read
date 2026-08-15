@@ -476,7 +476,7 @@ async function askHelp(which) {
 
   const data = await callBackend('decode_help', {
     documentLabel: label,
-    passageText: fullText.slice(0, 1800),
+    passageText: fullText.slice(0, 3000),
     studentQuestion: question,
     struggleLevel: struggleLevels[which]
   });
@@ -507,9 +507,9 @@ async function checkGuided(key, partLabel, passageElId, questionText) {
       document.getElementById('chunk-c2').innerText + ' ' +
       document.getElementById('chunk-c3').innerText + ' ' +
       document.getElementById('doc-blackcodes').innerText
-    ).slice(0, 1800);
+    ).slice(0, 4000);
   } else {
-    passageText = document.getElementById(passageElId).innerText.slice(0, 1500);
+    passageText = document.getElementById(passageElId).innerText.slice(0, 3000);
   }
 
   const data = await callBackend('guided_check', {
