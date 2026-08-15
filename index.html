@@ -295,6 +295,7 @@ const VOCAB_LIST = [
 ];
 const VOCAB_REQUIRED = Math.ceil(VOCAB_LIST.length * 0.5); // 3 of 6
 const GUIDED_KEYS = ['c1', 'c2', 'c3', 'bc1', 'bc2', 'power'];
+const MAX_CHECK_ATTEMPTS = 3;
 
 let struggleLevels = { '14th': 0, 'bc': 0 };
 let guidedAttempts = {};
@@ -458,8 +459,14 @@ async function askHelp(which) {
   const question = questionInput.value.trim();
   if (!question) { alert('Type your question first.'); return; }
 
-  struggleLevels[which]++;
   const panel = document.getElementById(isFirst ? 'helper-14th' : 'helper-bc');
+  const attemptsSoFar = struggleLevels[which] || 0;
+  if (attemptsSoFar >= MAX_CHECK_ATTEMPTS) {
+    panel.style.display = 'block';
+    panel.innerHTML = "You've asked a few times on this document — go with your best understanding and move on. Flag it for your teacher if you're still stuck.";
+    return;
+  }
+  struggleLevels[which] = attemptsSoFar + 1;
   panel.style.display = 'block';
   panel.innerHTML = '<span class="locked">Thinking...</span>';
 
@@ -483,7 +490,13 @@ async function checkGuided(key, partLabel, passageElId, questionText) {
   const answer = answerEl.value.trim();
   if (!answer) { alert('Write your answer first.'); return; }
 
-  guidedAttempts[key] = (guidedAttempts[key] || 0) + 1;
+  const attemptsSoFar = guidedAttempts[key] || 0;
+  if (attemptsSoFar >= MAX_CHECK_ATTEMPTS) {
+    panel.style.display = 'block';
+    panel.innerHTML = "You've checked this a few times — go ahead and trust your answer and move on. Flag it for your teacher if you're still unsure.";
+    return;
+  }
+  guidedAttempts[key] = attemptsSoFar + 1;
   panel.style.display = 'block';
   panel.innerHTML = '<span class="locked">Thinking...</span>';
 
@@ -512,7 +525,13 @@ async function checkAnalysis() {
   const panel = document.getElementById('feedback-analysis');
   if (!answer) { alert('Write something in your Analysis box first.'); return; }
 
-  guidedAttempts['analysis'] = (guidedAttempts['analysis'] || 0) + 1;
+  const attemptsSoFar = guidedAttempts['analysis'] || 0;
+  if (attemptsSoFar >= MAX_CHECK_ATTEMPTS) {
+    panel.style.display = 'block';
+    panel.innerHTML = "You've checked this a few times — trust your draft and move toward your closing write. Flag it for your teacher if you're still unsure.";
+    return;
+  }
+  guidedAttempts['analysis'] = attemptsSoFar + 1;
   panel.style.display = 'block';
   panel.innerHTML = '<span class="locked">Thinking...</span>';
 
