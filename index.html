@@ -99,11 +99,12 @@
 </div>
 
 <div class="id-bar">
-  <label for="student-id">Your Student ID:</label>
-  <input id="student-id" type="text" placeholder="e.g. jsmith">
+  <label for="student-id">Your Name:</label>
+  <input id="student-id" type="text" placeholder="e.g. Jamie Smith">
   <button onclick="loadState()">Load my saved work</button>
   <span id="load-status" class="save-indicator"></span>
 </div>
+<div class="try-first-note" style="margin-top:-8px;">Use your first and last name, spelled the same way every time — this is how your work is found and saved.</div>
 
 <!-- ============ OPENING WRITE ============ -->
 <h2>Before we start: What is owed, and to whom?</h2>
@@ -440,7 +441,7 @@ function toggleFrames() { document.getElementById('frames-panel').classList.togg
 // ---------- Backend calls ----------
 async function callBackend(action, extra) {
   const studentId = document.getElementById('student-id').value.trim();
-  if (!studentId) { alert('Enter your Student ID first.'); return null; }
+  if (!studentId) { alert('Enter your name first.'); return null; }
   const body = Object.assign({ secret: SHARED_SECRET, action: action, studentId: studentId }, extra || {});
   try {
     const res = await fetch(APPS_SCRIPT_URL, {
@@ -672,7 +673,7 @@ async function submitWork() {
 function downloadWork() {
   const val = id => { const el = document.getElementById(id); return el ? el.value : ''; };
   const esc = s => (s || '').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-  const studentId = document.getElementById('student-id').value.trim() || '(no ID entered)';
+  const studentId = document.getElementById('student-id').value.trim() || '(no name entered)';
   const now = new Date().toLocaleString();
 
   const html = `
