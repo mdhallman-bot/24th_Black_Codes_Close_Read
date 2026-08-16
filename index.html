@@ -403,9 +403,13 @@ function applyHighlight(color) {
   const validParent = container && container.closest('.source-text[contenteditable="true"]');
   if (!validParent) { alert('Select text inside one of the documents above.'); return; }
 
-  if (color === null) { document.execCommand('hiliteColor', false, 'transparent'); return; }
-  const cssColor = color === 'green' ? '#cfead0' : '#f3d2ce';
-  document.execCommand('hiliteColor', false, cssColor);
+  if (color === null) {
+    document.execCommand('hiliteColor', false, 'transparent');
+  } else {
+    const cssColor = color === 'green' ? '#cfead0' : '#f3d2ce';
+    document.execCommand('hiliteColor', false, cssColor);
+  }
+  scheduleAutoSave();
 }
 
 function countHighlights() {
