@@ -439,21 +439,48 @@ function restoreHighlights(map) {
 function toggleFrames() { document.getElementById('frames-panel').classList.toggle('open'); }
 
 // ---------- Backend calls ----------
-async function callBackend(action, extra) {
+async function callBackend(action, extra, opts) {
   const studentId = document.getElementById('student-id').value.trim();
   if (!studentId) { alert('Enter your name first.'); return null; }
   const body = Object.assign({ secret: SHARED_SECRET, action: action, studentId: studentId }, extra || {});
-  try {
-    const res = await fetch(APPS_SCRIPT_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-      body: JSON.stringify(body)
-    });
-    return await res.json();
-  } catch (err) {
-    alert('Could not reach the server. Check your internet connection and try again.');
-    return null;
+  const maxAttempts = (opts && opts.maxAttempts) || 3;
+  const silent = !!(opts && opts.silent); // true for background autosave — no popups, just retries
+
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    try {
+      const res = await fetch(APPS_SCRIPT_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify(body)
+      });
+
+      // Apps Script can return an HTML error page (quota / too many
+      // simultaneous executions) instead of JSON. Detect that BEFORE
+      // trying to parse, so it's treated as retryable, not a hard failure.
+      const raw = await res.text();
+      let parsed;
+      try {
+        parsed = JSON.parse(raw);
+      } catch (parseErr) {
+        throw new Error('non-json-response');
+      }
+      return parsed;
+
+    } catch (err) {
+      const isLastAttempt = attempt === maxAttempts;
+      if (isLastAttempt) {
+        if (!silent) {
+          alert("The server is busy right now (this happens when a lot of students submit at once). " +
+                "Please wait a few seconds and try again.");
+        }
+        return null;
+      }
+      // Exponential backoff with jitter: ~700ms, ~1500ms, ...
+      const delay = 700 * attempt + Math.random() * 400;
+      await new Promise(r => setTimeout(r, delay));
+    }
   }
+  return null;
 }
 
 async function askHelp(which) {
@@ -579,8 +606,13 @@ function scheduleAutoSave() { clearTimeout(saveTimer); saveTimer = setTimeout(sa
 
 async function saveState() {
   const status = document.getElementById('opening-save-status');
-  const data = await callBackend('save_state', collectState());
-  if (data && data.saved) status.textContent = 'Saved ' + new Date().toLocaleTimeString();
+  const data = await callBackend('save_state', collectState(), { maxAttempts: 4, silent: true });
+  if (data && data.saved) {
+    status.textContent = 'Saved ' + new Date().toLocaleTimeString();
+  } else if (status) {
+    // Quiet inline note instead of an alert — autosave will retry again on the next edit anyway.
+    status.textContent = 'Saving... (will retry)';
+  }
 }
 
 function collectState() {
@@ -665,6 +697,13 @@ async function submitWork() {
         '<div class="mock-card"><h4>Analysis and Reasoning</h4><div class="range">' + (rs ? rs.range : 'N/A') + '</div><div>' + (rs ? rs.feedback : '') + '</div>' +
           '<div class="improve"><strong>Next step:</strong> ' + (rs ? rs.improve : '') + '</div></div>' +
       '</div>';
+  } else if (data.feedbackGenerated === false) {
+    // Completion still succeeded (that logic doesn't depend on Claude), but
+    // the practice rubric preview failed to generate. Say so honestly
+    // instead of just showing nothing.
+    mockHtml = '<div class="mock-banner"><strong>Practice score preview unavailable</strong> — your completion ' +
+      'grade above is still recorded correctly. The practice feedback preview didn\'t generate this time ' +
+      '(this can happen when a lot of students submit at once). Let your teacher know if you\'d like to try again.</div>';
   }
 
   area.innerHTML = '<div class="completion-box ' + cls + '"><strong>' + heading + '</strong>' + checklistHtml + '</div>' + mockHtml;
